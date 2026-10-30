@@ -4,3 +4,17 @@ target/
 *.iml
 .DS_Store
 Thumbs.db
+
+# Local environment and credentials
+.env
+.env.*
+!.env.example
+secrets/
+credentials.*
+
+# Private keys and certificate stores
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
