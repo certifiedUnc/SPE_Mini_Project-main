@@ -130,11 +130,12 @@ Missing or non-numeric parameters and division by zero return HTTP 400 with a JS
 
 Jenkins itself is containerized, so setup does not depend on a locally installed Jenkins service.
 
-```powershell
+```bash
+export DOCKER_GID="$(stat -c '%g' /var/run/docker.sock)"
 docker compose -f docker-compose.jenkins.yml up -d --build
 ```
 
-Open `http://localhost:8090`, complete the initial administrator setup, install the required plugins below, and create a Pipeline job pointed at this repository. The Jenkins container mounts the Docker Engine socket and has Maven, Docker CLI, and Docker Compose v2 available. On Linux, set `DOCKER_GID` to the Docker socket's group ID before starting it (for example, `export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)`). The socket gives Jenkins control of the host Docker daemon, so keep Jenkins access restricted to trusted administrators.
+Open `http://localhost:8090`, complete the initial administrator setup, and create a Multibranch Pipeline job for this repository. The Jenkins container mounts the Docker Engine socket and has Maven, Docker CLI, and Docker Compose v2 available. The socket gives Jenkins control of the host Docker daemon, so keep Jenkins access restricted to trusted administrators.
 
 The Jenkins image installs the Git, Pipeline, GitHub Branch Source, Workspace Cleanup, JUnit, and Email Extension plugins at build time. Configure the Jenkins credentials described below.
 

@@ -1,4 +1,4 @@
-name: spe-calculator-jenkins
+name: spe-calculator-jenkins-v2
 
 services:
   jenkins:
