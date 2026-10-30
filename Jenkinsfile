@@ -16,7 +16,7 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_REPOSITORY = 'certifiedunc/spe-calculator'
+        DOCKERHUB_REPOSITORY = 'randomastrix/spe-calculator'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-credentials'
         NOTIFICATION_EMAIL = 'akshat0akt52@gmail.com'
         COMPOSE_FILE = 'docker-compose.yml'
@@ -130,12 +130,16 @@ pipeline {
 }
 
 def notifyByEmail(String status) {
-    catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+    // SMTP is an optional notification integration. A mail server outage must
+    // not change the result of the CI/CD work that has already run.
+    try {
         emailext(
             to: "${env.NOTIFICATION_EMAIL}",
             subject: "${env.JOB_NAME} #${env.BUILD_NUMBER}: ${status}",
             body: "Build: ${env.JOB_NAME}\nBuild Number: ${env.BUILD_NUMBER}\nStatus: ${status}\nBuild URL: ${env.BUILD_URL}",
             attachLog: status != 'SUCCESS'
         )
+    } catch (err) {
+        echo "Email notification failed (${err.getClass().getSimpleName()}); check Jenkins SMTP settings. Build status is unchanged."
     }
 }

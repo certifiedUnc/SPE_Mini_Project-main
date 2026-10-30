@@ -6,6 +6,7 @@ A Java 21, Spring Boot, and Maven calculator service for the SPE mini-project, w
 
 - [Mini-project report (PDF)](docs/report.pdf)
 - [Editable report source](docs/report.html)
+- [LaTeX report source](docs/report.tex)
 - [Calculator UI screenshot](docs/evidence/calculator-ui.png)
 - [Local health, API, and Compose verification record](docs/evidence/local-verification.txt)
 
@@ -162,7 +163,14 @@ The declarative `Jenkinsfile` checks out, validates Compose, builds, tests, arch
    - In the Jenkins Mailer section, enter the same Gmail address and configure `smtp.gmail.com` with port `465` and SSL.
    - Create a Gmail **App Password** from Google's account security page. Do not use your normal Gmail password or store the password in Git.
    - The pipeline sends success, failure, unstable, and aborted notifications to `akshat0akt52@gmail.com` by default. Set the Jenkins environment variable `NOTIFICATION_EMAIL` to override that address. Notification failures are recorded without masking the build result.
-8. In GitHub, protect `main` by requiring pull requests before merge. Once Jenkins status checks are publishing to GitHub, require the Jenkins check before allowing a merge. Keep deployment credentials in Jenkins, never in the repository.
+8. For GitHub commit status reporting, add a GitHub token to Jenkins Credentials (Secret text). For a classic personal access token, grant `repo:status` (and `public_repo` for repository discovery if needed); for a fine-grained token, allow repository metadata/contents read and commit statuses read/write. Select this credential in the Multibranch Pipeline GitHub Branch Source configuration, then rescan the repository. A GitHub build-status warning means this credential is missing or lacks those permissions; it is separate from build/test/deploy stages.
+9. In GitHub, protect `main` by requiring pull requests before merge. Once Jenkins status checks are publishing to GitHub, require the Jenkins check before allowing a merge. Keep deployment credentials in Jenkins, never in the repository.
+
+#### SMTP troubleshooting
+
+- For Gmail, enable 2-Step Verification and create an App Password. Configure both **Extended E-mail Notification** and **Mailer** under **Manage Jenkins → System** with `smtp.gmail.com`, port `465`, SSL enabled, the Gmail account as username, and the App Password as password. Do not use the regular Gmail password.
+- If Jenkins cannot establish an SMTP connection, confirm outbound TCP port 465 is allowed from the Jenkins container/host. Alternatively use port `587` with SSL disabled and STARTTLS enabled, if supported by the SMTP service. Save the settings and use the configuration page's test email feature.
+- The Jenkinsfile treats email as best-effort: failed delivery is logged, while the pipeline's existing result is preserved. An `ERROR: script returned exit code 1` earlier in the console is a separate stage failure; inspect the first such error above the `post` section to identify it.
 
 The multibranch pipeline verifies feature branches and pull requests but does not merge them. Review and merge the pull request on GitHub; the resulting `main` build is the only build that pushes and deploys. The deployed app is available at `http://localhost:8082`.
 
