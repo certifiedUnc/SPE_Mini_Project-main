@@ -59,6 +59,11 @@ pipeline {
         }
 
         stage('Docker Build') {
+            // The application Dockerfile uses RUN --mount cache directives,
+            // which require Docker's BuildKit builder rather than the legacy builder.
+            environment {
+                DOCKER_BUILDKIT = '1'
+            }
             steps {
                 script {
                     def branch = (env.BRANCH_NAME ?: 'local').replaceAll(/[^A-Za-z0-9_.-]/, '-')
