@@ -77,6 +77,11 @@
             gap: 12px;
         }
 
+        .input-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; }
+        .input-heading .section-tag { margin: 0; }
+        .clear-button, .copy-button { min-height: 0; padding: 0; border: 0; background: transparent; color: var(--muted); cursor: pointer; font: 600 .68rem/1 monospace; letter-spacing: .08em; text-transform: uppercase; }
+        .clear-button:hover, .copy-button:hover { transform: none; background: transparent; color: var(--acid); }
+
         label {
             display: grid;
             gap: 9px;
@@ -147,6 +152,10 @@
             color: #152016;
         }
 
+        button:active { transform: translateY(0); }
+        .operations button { display: grid; align-content: center; justify-items: center; gap: 2px; }
+        .operations button:hover .operation-label { color: #152016; }
+
         button:disabled {
             cursor: wait;
             opacity: 0.65;
@@ -173,6 +182,10 @@
             text-transform: uppercase;
             letter-spacing: 0.06em;
         }
+
+        .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        #result-expression { min-height: 1.3em; margin: 0 0 5px; color: #87968c; font: .78rem/1.3 monospace; }
+        .copy-button { position: relative; z-index: 2; }
 
         #result-value {
             overflow-wrap: anywhere;
@@ -204,13 +217,16 @@
 <main>
     <div class="topline">
         <div class="brand"><span class="brand-mark">∑</span> NUMERA <span style="color:#687970;font-weight:500">/ POCKET LAB</span></div>
-        <span class="status">READY</span>
+        <span class="status">ONLINE</span>
     </div>
     <p class="eyebrow">Quick calculation tool · 01</p>
     <h1>Make it<br>add up.</h1>
     <p class="intro">A small space for big numbers. Enter your values and pick an operation.</p>
     <form id="calculator-form">
-        <p class="section-tag">Input values</p>
+        <div class="input-heading">
+            <p class="section-tag">Input values</p>
+            <button class="clear-button" id="clear-button" type="button">Clear</button>
+        </div>
         <div class="inputs">
             <label for="operand-a">
                 First number
@@ -229,7 +245,11 @@
         </div>
     </form>
     <section class="result" aria-live="polite" aria-atomic="true">
-        <span class="result-label">Computed answer</span>
+        <div class="result-heading">
+            <span class="result-label">Computed answer</span>
+            <button class="copy-button" id="copy-button" type="button" hidden>Copy</button>
+        </div>
+        <p id="result-expression"></p>
         <output id="result-value" for="operand-a operand-b">—</output>
     </section>
     <p id="message" role="status"></p>
@@ -238,8 +258,31 @@
 <script>
     const form = document.querySelector("#calculator-form");
     const resultValue = document.querySelector("#result-value");
+    const resultExpression = document.querySelector("#result-expression");
     const message = document.querySelector("#message");
     const operationButtons = form.querySelectorAll("[data-operation]");
+    const clearButton = document.querySelector("#clear-button");
+    const copyButton = document.querySelector("#copy-button");
+    const operationSymbols = { add: "+", subtract: "−", multiply: "×", divide: "÷" };
+
+    clearButton.addEventListener("click", () => {
+        form.reset();
+        resultExpression.textContent = "";
+        resultValue.textContent = "—";
+        message.textContent = "";
+        copyButton.hidden = true;
+        form.querySelector("#operand-a").focus();
+    });
+
+    copyButton.addEventListener("click", async () => {
+        try {
+            await navigator.clipboard.writeText(resultValue.textContent);
+            copyButton.textContent = "Copied";
+            window.setTimeout(() => { copyButton.textContent = "Copy"; }, 1400);
+        } catch {
+            message.textContent = "Clipboard access is unavailable in this browser.";
+        }
+    });
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -254,6 +297,7 @@
             item.disabled = true;
         });
         message.textContent = "";
+        copyButton.hidden = true;
 
         try {
             const response = await fetch(`/api/v1/${operation}?${params}`);
@@ -262,6 +306,8 @@
                 throw new Error(body.message || "The calculation could not be completed.");
             }
             resultValue.textContent = body.result;
+            resultExpression.textContent = `${params.get("a")} ${operationSymbols[operation]} ${params.get("b")}`;
+            copyButton.hidden = false;
         } catch (error) {
             message.textContent = error instanceof Error
                 ? error.message
