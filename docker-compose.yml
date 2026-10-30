@@ -2,7 +2,7 @@ name: spe-calculator
 
 services:
   calculator:
-    image: ${CALCULATOR_IMAGE:-spe-calculator:local}
+    image: ${CALCULATOR_IMAGE:-local/spe-calculator:dev}
     build:
       context: .
       dockerfile: Dockerfile
@@ -16,12 +16,21 @@ services:
       timeout: 3s
       start_period: 20s
       retries: 3
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     networks:
       - calculator-network
     restart: unless-stopped
+    stop_grace_period: 30s
 
   proxy:
-    image: spe-calculator-proxy:local
+    image: local/spe-calculator-proxy:dev
     build:
       context: ./nginx
       dockerfile: Dockerfile
@@ -38,8 +47,12 @@ services:
       retries: 3
     networks:
       - calculator-network
+      - proxy-network
     restart: unless-stopped
 
 networks:
   calculator-network:
+    driver: bridge
+    internal: true
+  proxy-network:
     driver: bridge

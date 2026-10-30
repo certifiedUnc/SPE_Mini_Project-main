@@ -53,15 +53,15 @@ Open `http://localhost:8081` in a browser to use the calculator frontend.
 The published application image is:
 
 ```text
-certifiedUnc/spe-calculator:latest
+certifiedunc/spe-calculator:latest
 ```
 
 Run the calculator image directly and map it to port 8081:
 
 ```powershell
 docker login
-docker pull certifiedUnc/spe-calculator:latest
-docker run --rm -d --name spe-calculator -p 8081:8081 certifiedUnc/spe-calculator:latest
+docker pull certifiedunc/spe-calculator:latest
+docker run --rm -d --name spe-calculator -p 8081:8081 certifiedunc/spe-calculator:latest
 ```
 
 Verify it:
@@ -84,7 +84,7 @@ docker compose ps
 To use the Docker Hub image instead of building locally, set `CALCULATOR_IMAGE`:
 
 ```powershell
-$env:CALCULATOR_IMAGE="certifiedUnc/spe-calculator:latest"
+$env:CALCULATOR_IMAGE="certifiedunc/spe-calculator:latest"
 docker compose pull calculator
 docker compose up -d --no-build
 docker compose ps
@@ -94,23 +94,23 @@ Open `http://localhost:8082` for the frontend and API. Jenkins uses port 8080, w
 
 ## Publish the image to Docker Hub
 
-Use a Docker Hub access token rather than an account password. Set the Docker Hub namespace once; this repository uses `certifiedUnc`.
+Use a Docker Hub access token rather than an account password. Set the Docker Hub namespace once; this repository uses `certifiedunc`.
 
 ```powershell
-docker login -u certifiedUnc
-docker build -t certifiedUnc/spe-calculator:latest .
-docker push certifiedUnc/spe-calculator:latest
+docker login -u certifiedunc
+docker build -t certifiedunc/spe-calculator:latest .
+docker push certifiedunc/spe-calculator:latest
 ```
 
 Add a build-specific immutable tag before pushing to production:
 
 ```powershell
 $tag = (Get-Date -Format 'yyyyMMdd-HHmmss')
-docker build -t "certifiedUnc/spe-calculator:$tag" .
-docker push "certifiedUnc/spe-calculator:$tag"
+docker build -t "certifiedunc/spe-calculator:$tag" .
+docker push "certifiedunc/spe-calculator:$tag"
 ```
 
-The tagged and `latest` versions should appear at `https://hub.docker.com/r/certifiedUnc/spe-calculator`.
+The tagged and `latest` versions should appear at `https://hub.docker.com/r/certifiedunc/spe-calculator`.
 
 ## API
 
@@ -134,7 +134,7 @@ Jenkins itself is containerized, so setup does not depend on a locally installed
 docker compose -f docker-compose.jenkins.yml up -d --build
 ```
 
-Open `http://localhost:8090`, complete the initial administrator setup, install the required plugins below, and create a Pipeline job pointed at this repository. The Jenkins container mounts the Docker Engine socket and has Maven, Docker CLI, and Docker Compose available.
+Open `http://localhost:8090`, complete the initial administrator setup, install the required plugins below, and create a Pipeline job pointed at this repository. The Jenkins container mounts the Docker Engine socket and has Maven, Docker CLI, and Docker Compose v2 available. On Linux, set `DOCKER_GID` to the Docker socket's group ID before starting it (for example, `export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)`). The socket gives Jenkins control of the host Docker daemon, so keep Jenkins access restricted to trusted administrators.
 
 Required plugins: Git, Pipeline, Docker Pipeline, Workspace Cleanup, and Email Extension. Configure the Jenkins credentials described below.
 
@@ -148,13 +148,13 @@ The declarative `Jenkinsfile` builds and tests every branch and pull request, ar
 2. The container already provides Java 21, Maven, Docker CLI, and Docker Compose; no local agent tools or host Jenkins installation are required.
 3. Add a Jenkins **Username with password** credential with ID `dockerhub-credentials`. Use your Docker Hub username and a Docker Hub access token as the password.
 4. Create a **Multibranch Pipeline** job for this GitHub repository. Configure it to discover branches and pull requests, and ensure it loads the `Jenkinsfile` from each branch.
-5. Configure the GitHub webhook to notify Jenkins of pushes and pull requests, or configure periodic multibranch indexing as a fallback.
+5. Configure a GitHub webhook for push and pull request events and enable branch and pull request discovery in the multibranch source. The Jenkinsfile also polls each branch every five minutes as a fallback.
 6. Ensure the Jenkins agent can run Docker and Docker Compose v2, and can bind host port 8082. The deployment runs on that agent's Docker host. Jenkins itself can continue using port 8080.
 7. Configure Jenkins SMTP so it can send mail:
    - In **Manage Jenkins → System → Extended E-mail Notification**, set SMTP server `smtp.gmail.com`, SMTP port `465`, enable SSL, and add your Gmail username and app password.
    - In the Jenkins Mailer section, enter the same Gmail address and configure `smtp.gmail.com` with port `465` and SSL.
    - Create a Gmail **App Password** from Google's account security page. Do not use your normal Gmail password or store the password in Git.
-   - The pipeline sends success and failure notifications to `akshat0akt52@gmail.com` by default. An optional Jenkins environment variable named `NOTIFICATION_EMAIL` can override that address.
+   - The pipeline sends success, failure, unstable, and aborted notifications to `akshat0akt52@gmail.com` by default. Set the Jenkins environment variable `NOTIFICATION_EMAIL` to override that address. Notification failures are recorded without masking the build result.
 8. In GitHub, protect `main` by requiring pull requests before merge. Once Jenkins status checks are publishing to GitHub, require the Jenkins check before allowing a merge. Keep deployment credentials in Jenkins, never in the repository.
 
 The multibranch pipeline verifies feature branches and pull requests but does not merge them. Review and merge the pull request on GitHub; the resulting `main` build is the only build that pushes and deploys. The deployed app is available at `http://localhost:8082`.
