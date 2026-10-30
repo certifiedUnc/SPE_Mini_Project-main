@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Calculator REST API — DevOps Mini Project Report</title>
+<style>
+@page { size: A4; margin: 18mm 18mm 16mm; }
+* { box-sizing: border-box; }
+body { margin: 0; color: #17231d; font: 9.4pt/1.32 Arial, sans-serif; zoom: .82; }
+.page { page-break-after: always; position: relative; padding-bottom: 8mm; }
+.page:last-child { page-break-after: auto; }
+h1 { font-size: 24pt; line-height: 1.1; margin: 0 0 9mm; color: #14241b; }
+h2 { margin: 5mm 0 1.5mm; font-size: 15pt; color: #2c5638; }
+h3 { margin: 3mm 0 1mm; font-size: 11pt; }
+p { margin: 2mm 0 3mm; }
+.kicker { color: #557162; font-size: 9pt; letter-spacing: .15em; text-transform: uppercase; font-weight: bold; }
+.lead { font-size: 13pt; color: #45594c; max-width: 165mm; }
+.meta { border-top: 2px solid #c4f263; margin-top: 13mm; padding-top: 5mm; color: #405247; }
+.meta div { margin: 1.5mm 0; }
+.box { background: #f1f5ef; border-left: 3px solid #8ab848; padding: 4mm 5mm; margin: 4mm 0; }
+.flow { padding: 5mm; background: #17231d; color: #e9f5df; font: 9pt/1.55 monospace; white-space: pre-wrap; }
+table { width: 100%; border-collapse: collapse; margin: 3mm 0 5mm; font-size: 9pt; }
+th, td { border: 1px solid #ccd6cc; padding: 1.8mm; text-align: left; vertical-align: top; }
+th { background: #eaf0e7; }
+figure { margin: 2mm 0; text-align: center; }
+figure img { max-width: 100%; max-height: 100mm; border: 1px solid #d2dbd2; }
+figcaption { color: #59675e; font-size: 8.5pt; margin-top: 2mm; }
+.small { color: #5b685f; font-size: 8.5pt; }
+.footer { position: absolute; bottom: 0; border-top: 1px solid #d7dfd5; padding-top: 2mm; width: 100%; color: #66736a; font-size: 8pt; }
+</style></head><body>
+<section class="page">
+<p class="kicker">CSE 816 · Software Production Engineering · Mini Project</p>
+<h1>Calculator REST API<br>DevOps Pipeline</h1>
+<p class="lead">A Java and Spring Boot calculator packaged as a container and deployed with Docker Compose, with Jenkins pipeline configuration for automated build and delivery.</p>
+<div class="meta"><div><b>Course:</b> CSE 816 — Software Production Engineering</div><div><b>Stack:</b> Java 21 · Spring Boot · Maven · Jenkins · Docker · Docker Compose · Nginx</div><div><b>Project:</b> SPE Mini Project — End-to-End CI/CD Pipeline for a Calculator REST API</div><div><b>Report date:</b> 30 October 2026</div></div>
+<h2>Project summary</h2>
+<p>The service provides addition, subtraction, multiplication, and division through REST endpoints. It accepts decimal operands, returns a JSON result, rejects missing or invalid parameters with structured HTTP 400 errors, and exposes Spring Actuator health status.</p>
+<p>The deployment uses two Compose services. The calculator runs on the private Compose network; Nginx provides the browser and API entry point. Both services have health checks and restart policies. The application image uses a Maven build stage and a smaller Java runtime stage, runs as a non-root user, and exposes port 8081 inside the container.</p>
+<div class="box"><b>Observed local deployment:</b> On 30 October 2026, the calculator and Nginx services were running and reported healthy. Port 8082 was unavailable, so the existing proxy was accessible at <code>http://localhost:8083</code>. The health endpoint returned <code>{"status":"UP"}</code>; the add endpoint returned a result of 5 for 2 + 3.</div>
+<h2>Architecture</h2>
+<div class="flow">Developer push to GitHub
+        │
+        ▼
+Jenkins Multibranch Pipeline
+ Checkout → Build → Test/JUnit → Package → Docker Build
+        │ main branch only
+        ├── Push tagged image to Docker Hub
+        └── Compose deploy → Calculator ──private network── Nginx proxy
+                                 │                             │
+                         /actuator/health                browser/API entry</div>
+<p class="small">The pipeline and deployment are configured in the project files. A successful Jenkins execution and external service configuration must be demonstrated separately; this report does not claim a completed Jenkins run.</p>
+<div class="footer">Calculator REST API · Project report · Page 1</div>
+</section>
+<section class="page">
+<p class="kicker">Implementation</p><h1>Pipeline and<br>verification</h1>
+<h2>Pipeline stages</h2>
+<table><thead><tr><th>Stage</th><th>What the project configures</th></tr></thead><tbody>
+<tr><td>Checkout</td><td>Checks out the revision supplied by the Jenkins multibranch job.</td></tr>
+<tr><td>Build</td><td>Runs Maven clean package with tests skipped in this stage.</td></tr>
+<tr><td>Test</td><td>Runs Maven tests and publishes Surefire JUnit XML reports.</td></tr>
+<tr><td>Package</td><td>Packages the executable JAR and archives it in Jenkins.</td></tr>
+<tr><td>Docker Build</td><td>Builds a branch/build-number tagged calculator image and the Nginx proxy image.</td></tr>
+<tr><td>Push</td><td>On the main branch, authenticates with Jenkins-managed credentials and pushes the versioned and latest Docker Hub tags.</td></tr>
+<tr><td>Deploy</td><td>On main, deploys through Compose and waits for service health checks.</td></tr>
+<tr><td>Notifications</td><td>Jenkins post actions send success/failure email through the configured Email Extension settings.</td></tr>
+</tbody></table>
+<h2>Verification evidence</h2>
+<p>Compose health and API responses were captured from the running local stack. The UI screenshot below shows the calculator page served through the Nginx proxy.</p>
+<figure><img src="evidence/calculator-ui.png" alt="NUMERA Pocket Lab calculator page running locally"><figcaption>Calculator interface served from the local Compose deployment at port 8083.</figcaption></figure>
+<p class="small">See <code>docs/evidence/local-verification.txt</code> for the recorded health response, sample API response, and Compose service status. The service test file covers all four arithmetic operations and divide-by-zero; the MVC test covers API responses and the frontend. Its page-heading assertion was updated to match the current UI. Tests were not rerun while preparing this report.</p>
+<div class="footer">Calculator REST API · Project report · Page 2</div>
+</section>
+<section class="page">
+<p class="kicker">Review and handoff</p><h1>Challenges and<br>remaining evidence</h1>
+<h2>Challenges addressed</h2>
+<p>The frontend was redesigned after the original integration test had been written. That left an obsolete assertion expecting the old “Calculator” heading. The assertion has now been aligned with the current “Make it add up.” heading. The local Compose proxy also could not use its default host port 8082, so this verification used port 8083.</p>
+<h2>Items that still require account or live-run evidence</h2>
+<table><thead><tr><th>Item</th><th>Current evidence/status</th></tr></thead><tbody>
+<tr><td>GitHub repository and collaboration history</td><td>This local checkout currently has no commits or Git remote. Publish to the student’s repository and add progressive commits, a feature branch, and a merged pull request.</td></tr>
+<tr><td>Jenkins run and trigger</td><td>Jenkinsfile and Jenkins Compose configuration are present. Configure the Jenkins job and GitHub webhook (or Poll SCM), then capture a successful run showing the stages.</td></tr>
+<tr><td>Docker Hub image</td><td>The README names <code>certifiedUnc/spe-calculator</code> and the pipeline has push steps. Confirm the image is publicly available after an authenticated push.</td></tr>
+<tr><td>Email proof</td><td>The Jenkinsfile has success/failure notification steps. Configure SMTP and Jenkins credentials, run the job, and capture the received notification.</td></tr>
+<tr><td>Live demo</td><td>Demonstrate a GitHub push triggering an automatic build and deployment during the course review.</td></tr>
+</tbody></table>
+<h2>Conclusion</h2>
+<p>The application, container build, two-service Compose deployment, and declarative Jenkins pipeline configuration are in place. The local stack has been observed healthy and the API responds as expected. The final delivery still depends on publishing the repository and image, configuring Jenkins integrations, running the pipeline, and collecting the required account-level evidence.</p>
+<div class="box"><b>Before submission:</b> run <code>mvn clean test</code>, confirm all tests pass, execute the Jenkins pipeline against GitHub, verify Docker Hub and email delivery, and save the Jenkins/email/container/API evidence screenshots.</div>
+<div class="footer">Calculator REST API · Project report · Page 3</div>
+</section>
+</body></html>

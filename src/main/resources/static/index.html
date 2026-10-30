@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101714">
+    <title>NUMERA / Pocket Lab</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #edf4eb;
+            background: #101714;
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            --acid: #c4f263;
+            --muted: #94a39a;
+            --panel: #1a2420;
+            --line: #34423a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            padding: 32px 20px;
+            background-image: radial-gradient(ellipse at 50% 0%, #25372b 0, transparent 55%),
+                linear-gradient(90deg, transparent 49.9%, rgb(255 255 255 / 2%) 50%, transparent 50.1%);
+        }
+
+        main {
+            width: min(100%, 520px);
+            padding: 30px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #141c18;
+            box-shadow: 0 28px 90px rgb(0 0 0 / 38%);
+        }
+
+        .topline { display: flex; align-items: center; justify-content: space-between; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+        .brand { display: flex; align-items: center; gap: 10px; font-size: .8rem; font-weight: 800; letter-spacing: .16em; }
+        .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; background: var(--acid); color: #142015; font-size: 1rem; }
+        .status { color: var(--acid); font: 700 .68rem/1 monospace; letter-spacing: .12em; }
+        .status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--acid); }
+
+        .eyebrow {
+            margin: 25px 0 9px;
+            color: var(--acid);
+            font: 700 .72rem/1.2 monospace;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(2.2rem, 8vw, 3.2rem);
+            letter-spacing: -.065em;
+            line-height: 1;
+        }
+
+        .intro {
+            margin: 12px 0 30px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .section-tag { margin: 0 0 11px; color: #687970; font: 700 .65rem/1 monospace; letter-spacing: .15em; text-transform: uppercase; }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        label {
+            display: grid;
+            gap: 9px;
+            color: #aebbb2;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        input {
+            width: 100%;
+            min-width: 0;
+            padding: 15px 14px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: #101714;
+            color: #f3f8ef;
+            font: inherit;
+            font-size: 1.1rem;
+            font-variant-numeric: tabular-nums;
+            transition: border-color 140ms ease, box-shadow 140ms ease;
+        }
+
+        input::placeholder { color: #56635b; }
+        input:focus { border-color: var(--acid); box-shadow: 0 0 0 3px rgb(196 242 99 / 10%); outline: none; }
+
+        input:focus-visible,
+        button:focus-visible {
+            outline: 3px solid rgb(196 242 99 / 35%);
+            outline-offset: 2px;
+        }
+
+        .operations {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 9px;
+            margin-top: 25px;
+        }
+
+        button {
+            min-height: 54px;
+            border: 1px solid #526149;
+            border-radius: 4px;
+            background: #222d26;
+            color: var(--acid);
+            cursor: pointer;
+            font: 600 1.35rem/1 monospace;
+            transition: background 120ms ease, transform 120ms ease, color 120ms ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            background: var(--acid);
+            color: #152016;
+        }
+
+        button:disabled {
+            cursor: wait;
+            opacity: 0.65;
+        }
+
+        .result {
+            min-height: 125px;
+            margin-top: 26px;
+            padding: 17px 20px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            background: var(--panel);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result::after { content: "="; position: absolute; right: 18px; bottom: -31px; color: rgb(196 242 99 / 7%); font: 900 9rem/1 monospace; }
+
+        .result-label {
+            display: block;
+            margin-bottom: 7px;
+            color: var(--muted);
+            font: 700 .68rem/1.2 monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        #result-value {
+            overflow-wrap: anywhere;
+            position: relative;
+            z-index: 1;
+            color: var(--acid);
+            font: 500 clamp(1.7rem, 7vw, 2.35rem)/1.2 monospace;
+        }
+
+        #message {
+            min-height: 1.25em;
+            margin: 12px 0 0;
+            color: #ff9987;
+            font-size: 0.9rem;
+        }
+
+        .footer { display: flex; justify-content: space-between; margin-top: 22px; color: #687970; font: .65rem/1.3 monospace; letter-spacing: .08em; text-transform: uppercase; }
+
+        @media (max-width: 420px) {
+            main {
+                padding: 23px 18px;
+            }
+            .topline { padding-bottom: 18px; }
+            .footer { gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="topline">
+        <div class="brand"><span class="brand-mark">∑</span> NUMERA <span style="color:#687970;font-weight:500">/ POCKET LAB</span></div>
+        <span class="status">READY</span>
+    </div>
+    <p class="eyebrow">Quick calculation tool · 01</p>
+    <h1>Make it<br>add up.</h1>
+    <p class="intro">A small space for big numbers. Enter your values and pick an operation.</p>
+    <form id="calculator-form">
+        <p class="section-tag">Input values</p>
+        <div class="inputs">
+            <label for="operand-a">
+                First number
+                <input id="operand-a" name="a" type="number" step="any" placeholder="e.g. 12.5" required>
+            </label>
+            <label for="operand-b">
+                Second number
+                <input id="operand-b" name="b" type="number" step="any" placeholder="e.g. 4" required>
+            </label>
+        </div>
+        <div class="operations" aria-label="Choose an operation">
+            <button type="submit" data-operation="add" aria-label="Add">+</button>
+            <button type="submit" data-operation="subtract" aria-label="Subtract">−</button>
+            <button type="submit" data-operation="multiply" aria-label="Multiply">×</button>
+            <button type="submit" data-operation="divide" aria-label="Divide">÷</button>
+        </div>
+    </form>
+    <section class="result" aria-live="polite" aria-atomic="true">
+        <span class="result-label">Computed answer</span>
+        <output id="result-value" for="operand-a operand-b">—</output>
+    </section>
+    <p id="message" role="status"></p>
+    <div class="footer"><span>Decimal precision</span><span>Four operations · Instant output</span></div>
+</main>
+<script>
+    const form = document.querySelector("#calculator-form");
+    const resultValue = document.querySelector("#result-value");
+    const message = document.querySelector("#message");
+    const operationButtons = form.querySelectorAll("[data-operation]");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const operation = event.submitter?.dataset.operation;
+        if (!operation || !form.reportValidity()) {
+            return;
+        }
+
+        const params = new URLSearchParams(new FormData(form));
+        const button = event.submitter;
+        operationButtons.forEach((item) => {
+            item.disabled = true;
+        });
+        message.textContent = "";
+
+        try {
+            const response = await fetch(`/api/v1/${operation}?${params}`);
+            const body = await response.json();
+            if (!response.ok) {
+                throw new Error(body.message || "The calculation could not be completed.");
+            }
+            resultValue.textContent = body.result;
+        } catch (error) {
+            message.textContent = error instanceof Error
+                ? error.message
+                : "Unable to reach the calculator service. Please try again.";
+        } finally {
+            operationButtons.forEach((item) => {
+                item.disabled = false;
+            });
+            button.focus();
+        }
+    });
+</script>
+</body>
+</html>

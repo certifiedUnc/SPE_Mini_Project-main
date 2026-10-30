@@ -1,0 +1,13 @@
+Local verification evidence — 2026-10-30
+
+Compose deployment:
+- calculator: running, healthy (internal port 8081)
+- proxy: running, healthy (host port 8083 -> container port 80)
+
+GET http://localhost:8083/actuator/health
+{"status":"UP"}
+
+GET http://localhost:8083/api/v1/add?a=2&b=3
+{"operation":"add","a":2,"b":3,"result":5}
+
+Note: the default host port 8082 was unavailable in this environment, so verification used 8083.
