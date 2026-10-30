@@ -20,6 +20,25 @@ mvn package
 
 JUnit XML reports are written to `target/surefire-reports/`.
 
+## Git and GitHub contribution workflow
+
+Keep `main` deployable and make each change on a short-lived branch. For example:
+
+```bash
+git switch main
+git pull --ff-only
+git switch -c feature/describe-your-change
+# make and review your changes
+git diff
+git add <files>
+git commit -m "Describe the change"
+git push -u origin feature/describe-your-change
+```
+
+Open a pull request from the branch to `main`, review the diff and CI results, then merge it on GitHub. Use focused commits with clear messages so `git log --oneline --graph --decorate` tells the project's story; use `git show <commit>` to inspect a change and `git revert <commit>` to undo a shared commit safely.
+
+Never commit passwords, access tokens, private keys, or populated `.env` files. Store deployment credentials in Jenkins credentials, use `.env.example` for safe variable names and placeholders, and check `git status` before committing. If a secret was committed, removing it in a later commit is not enough: revoke or rotate it immediately.
+
 ## Run
 
 ```powershell

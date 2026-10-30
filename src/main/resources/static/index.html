@@ -117,6 +117,19 @@
             margin-top: 25px;
         }
 
+        .operation-symbol {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+        }
+
+        .operation-label {
+            display: block;
+            color: var(--muted);
+            font: 600 0.58rem/1 monospace;
+            letter-spacing: 0.08em;
+        }
+
         button {
             min-height: 54px;
             border: 1px solid #526149;
@@ -209,10 +222,10 @@
             </label>
         </div>
         <div class="operations" aria-label="Choose an operation">
-            <button type="submit" data-operation="add" aria-label="Add">+</button>
-            <button type="submit" data-operation="subtract" aria-label="Subtract">−</button>
-            <button type="submit" data-operation="multiply" aria-label="Multiply">×</button>
-            <button type="submit" data-operation="divide" aria-label="Divide">÷</button>
+            <button type="submit" data-operation="add" aria-label="Add"><span class="operation-symbol" aria-hidden="true">+</span><span class="operation-label">ADD</span></button>
+            <button type="submit" data-operation="subtract" aria-label="Subtract"><span class="operation-symbol" aria-hidden="true">−</span><span class="operation-label">SUBTRACT</span></button>
+            <button type="submit" data-operation="multiply" aria-label="Multiply"><span class="operation-symbol" aria-hidden="true">×</span><span class="operation-label">MULTIPLY</span></button>
+            <button type="submit" data-operation="divide" aria-label="Divide"><span class="operation-symbol" aria-hidden="true">÷</span><span class="operation-label">DIVIDE</span></button>
         </div>
     </form>
     <section class="result" aria-live="polite" aria-atomic="true">
