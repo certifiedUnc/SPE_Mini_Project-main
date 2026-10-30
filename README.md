@@ -45,7 +45,7 @@ Never commit passwords, access tokens, private keys, or populated `.env` files. 
 mvn spring-boot:run
 ```
 
-The API listens on `http://localhost:8081` (Jenkins uses port 8080).
+The API listens on `http://localhost:8081` when run directly.
 Open `http://localhost:8081` in a browser to use the calculator frontend.
 
 ## Run with Docker Hub image
@@ -90,7 +90,7 @@ docker compose up -d --no-build
 docker compose ps
 ```
 
-Open `http://localhost:8082` for the frontend and API. Jenkins uses port 8080, while the calculator listens on port 8081 only inside the Compose network. To stop the stack, run `docker compose down`.
+Open `http://localhost:8082` for the frontend and API. The calculator listens on port 8081 only inside the Compose network. To stop the stack, run `docker compose down`.
 
 ## Publish the image to Docker Hub
 
@@ -136,20 +136,20 @@ docker compose -f docker-compose.jenkins.yml up -d --build
 
 Open `http://localhost:8090`, complete the initial administrator setup, install the required plugins below, and create a Pipeline job pointed at this repository. The Jenkins container mounts the Docker Engine socket and has Maven, Docker CLI, and Docker Compose v2 available. On Linux, set `DOCKER_GID` to the Docker socket's group ID before starting it (for example, `export DOCKER_GID=$(stat -c '%g' /var/run/docker.sock)`). The socket gives Jenkins control of the host Docker daemon, so keep Jenkins access restricted to trusted administrators.
 
-Required plugins: Git, Pipeline, Docker Pipeline, Workspace Cleanup, and Email Extension. Configure the Jenkins credentials described below.
+The Jenkins image installs the Git, Pipeline, GitHub Branch Source, Workspace Cleanup, JUnit, and Email Extension plugins at build time. Configure the Jenkins credentials described below.
 
 ## Jenkins pipeline
 
-The declarative `Jenkinsfile` builds and tests every branch and pull request, archives the executable JAR, and builds a Docker image. Only builds for the `main` branch push the versioned image and `latest` tag to Docker Hub and deploy the stack with Docker Compose. Deployment waits for the calculator's `/actuator/health` check and the proxy health check to pass.
+The declarative `Jenkinsfile` checks out, validates Compose, builds, tests, archives the executable JAR, and builds a Docker image for every branch and pull request. Only builds for the `main` branch push the versioned image and `latest` tag to Docker Hub and deploy the stack with Docker Compose. Deployment waits for the calculator's `/actuator/health` check and the proxy health check to pass.
 
 ### Jenkins setup
 
-1. Install the Pipeline, Git, GitHub Branch Source, Docker Pipeline, Workspace Cleanup, and Email Extension plugins.
+1. The Jenkins image installs the Git, Pipeline, GitHub Branch Source, Workspace Cleanup, JUnit, and Email Extension plugins when it is built.
 2. The container already provides Java 21, Maven, Docker CLI, and Docker Compose; no local agent tools or host Jenkins installation are required.
 3. Add a Jenkins **Username with password** credential with ID `dockerhub-credentials`. Use your Docker Hub username and a Docker Hub access token as the password.
 4. Create a **Multibranch Pipeline** job for this GitHub repository. Configure it to discover branches and pull requests, and ensure it loads the `Jenkinsfile` from each branch.
 5. Configure a GitHub webhook for push and pull request events and enable branch and pull request discovery in the multibranch source. The Jenkinsfile also polls each branch every five minutes as a fallback.
-6. Ensure the Jenkins agent can run Docker and Docker Compose v2, and can bind host port 8082. The deployment runs on that agent's Docker host. Jenkins itself can continue using port 8080.
+6. Ensure the Jenkins agent can run Docker and Docker Compose v2, and can bind host port 8082. The deployment runs on that agent's Docker host. Jenkins is available on host port 8090 (container port 8080).
 7. Configure Jenkins SMTP so it can send mail:
    - In **Manage Jenkins → System → Extended E-mail Notification**, set SMTP server `smtp.gmail.com`, SMTP port `465`, enable SSL, and add your Gmail username and app password.
    - In the Jenkins Mailer section, enter the same Gmail address and configure `smtp.gmail.com` with port `465` and SSL.

@@ -35,9 +35,15 @@ pipeline {
             }
         }
 
+        stage('Build') {
+            steps {
+                sh 'mvn -B -ntp -DskipTests clean package'
+            }
+        }
+
         stage('Test') {
             steps {
-                sh 'mvn -B -ntp clean verify'
+                sh 'mvn -B -ntp test'
             }
             post {
                 always {

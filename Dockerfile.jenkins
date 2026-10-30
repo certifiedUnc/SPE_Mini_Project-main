@@ -14,4 +14,14 @@ RUN apt-get update \
     && docker compose version \
     && rm -rf /var/lib/apt/lists/*
 
+RUN jenkins-plugin-cli --plugins \
+    git \
+    pipeline-model-definition \
+    workflow-aggregator \
+    workflow-multibranch \
+    github-branch-source \
+    ws-cleanup \
+    junit \
+    email-ext
+
 USER jenkins
