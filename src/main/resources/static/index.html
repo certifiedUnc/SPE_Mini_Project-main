@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#101827">
+    <meta name="theme-color" content="#1b1712">
     <title>NUMERA / Pocket Lab</title>
     <style>
         :root {
             color-scheme: dark;
             font-family: "Segoe UI", Arial, sans-serif;
-            color: #edf4ff;
-            background: #101827;
+            color: #fff7ed;
+            background: #1b1712;
             font-synthesis: none;
             text-rendering: optimizeLegibility;
-            --acid: #60a5fa;
-            --muted: #94a3b8;
-            --panel: #1a2432;
-            --line: #344255;
+            --acid: #f6b84a;
+            --muted: #b8a994;
+            --panel: #2a231b;
+            --line: #514333;
         }
 
         * {
@@ -29,7 +29,7 @@
             display: grid;
             place-items: center;
             padding: 32px 20px;
-            background-image: radial-gradient(ellipse at 50% 0%, #203653 0, transparent 55%),
+            background-image: radial-gradient(ellipse at 50% 0%, #49331b 0, transparent 55%),
                 linear-gradient(90deg, transparent 49.9%, rgb(255 255 255 / 2%) 50%, transparent 50.1%);
         }
 
@@ -38,13 +38,13 @@
             padding: 30px;
             border: 1px solid var(--line);
             border-radius: 8px;
-            background: #141c29;
+            background: #241e17;
             box-shadow: 0 28px 90px rgb(0 0 0 / 38%);
         }
 
         .topline { display: flex; align-items: center; justify-content: space-between; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
         .brand { display: flex; align-items: center; gap: 10px; font-size: .8rem; font-weight: 800; letter-spacing: .16em; }
-        .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; background: var(--acid); color: #101b2e; font-size: 1rem; }
+        .brand-mark { display: grid; width: 28px; height: 28px; place-items: center; background: var(--acid); color: #21180c; font-size: 1rem; }
         .status { color: var(--acid); font: 700 .68rem/1 monospace; letter-spacing: .12em; }
         .status::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: var(--acid); }
 
@@ -69,7 +69,7 @@
             line-height: 1.5;
         }
 
-        .section-tag { margin: 0 0 11px; color: #687b94; font: 700 .65rem/1 monospace; letter-spacing: .15em; text-transform: uppercase; }
+        .section-tag { margin: 0 0 11px; color: #8c7657; font: 700 .65rem/1 monospace; letter-spacing: .15em; text-transform: uppercase; }
 
         .inputs {
             display: grid;
@@ -85,7 +85,7 @@
         label {
             display: grid;
             gap: 9px;
-            color: #aebbd0;
+            color: #d0c1aa;
             font-size: 0.78rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -98,20 +98,20 @@
             padding: 15px 14px;
             border: 1px solid var(--line);
             border-radius: 4px;
-            background: #101827;
-            color: #f3f7ff;
+            background: #1b1712;
+            color: #fff9ef;
             font: inherit;
             font-size: 1.1rem;
             font-variant-numeric: tabular-nums;
             transition: border-color 140ms ease, box-shadow 140ms ease;
         }
 
-        input::placeholder { color: #56647a; }
-        input:focus { border-color: var(--acid); box-shadow: 0 0 0 3px rgb(96 165 250 / 16%); outline: none; }
+        input::placeholder { color: #76654d; }
+        input:focus { border-color: var(--acid); box-shadow: 0 0 0 3px rgb(246 184 74 / 16%); outline: none; }
 
         input:focus-visible,
         button:focus-visible {
-            outline: 3px solid rgb(96 165 250 / 35%);
+            outline: 3px solid rgb(246 184 74 / 35%);
             outline-offset: 2px;
         }
 
@@ -137,9 +137,9 @@
 
         button {
             min-height: 54px;
-            border: 1px solid #52647d;
+            border: 1px solid #725832;
             border-radius: 4px;
-            background: #222d3d;
+            background: #352a1d;
             color: var(--acid);
             cursor: pointer;
             font: 600 1.35rem/1 monospace;
@@ -149,12 +149,12 @@
         button:hover {
             transform: translateY(-1px);
             background: var(--acid);
-            color: #101b2e;
+            color: #21180c;
         }
 
         button:active { transform: translateY(0); }
         .operations button { display: grid; align-content: center; justify-items: center; gap: 2px; }
-        .operations button:hover .operation-label { color: #101b2e; }
+        .operations button:hover .operation-label { color: #21180c; }
 
         button:disabled {
             cursor: wait;
@@ -172,7 +172,7 @@
             overflow: hidden;
         }
 
-        .result::after { content: "="; position: absolute; right: 18px; bottom: -31px; color: rgb(96 165 250 / 7%); font: 900 9rem/1 monospace; }
+        .result::after { content: "="; position: absolute; right: 18px; bottom: -31px; color: rgb(246 184 74 / 7%); font: 900 9rem/1 monospace; }
 
         .result-label {
             display: block;
@@ -184,7 +184,7 @@
         }
 
         .result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-        #result-expression { min-height: 1.3em; margin: 0 0 5px; color: #8796ad; font: .78rem/1.3 monospace; }
+        #result-expression { min-height: 1.3em; margin: 0 0 5px; color: #b3a184; font: .78rem/1.3 monospace; }
         .copy-button { position: relative; z-index: 2; }
 
         #result-value {
@@ -202,7 +202,7 @@
             font-size: 0.9rem;
         }
 
-        .footer { display: flex; justify-content: space-between; margin-top: 22px; color: #687b94; font: .65rem/1.3 monospace; letter-spacing: .08em; text-transform: uppercase; }
+        .footer { display: flex; justify-content: space-between; margin-top: 22px; color: #8c7657; font: .65rem/1.3 monospace; letter-spacing: .08em; text-transform: uppercase; }
 
         @media (max-width: 420px) {
             main {
@@ -216,7 +216,7 @@
 <body>
 <main>
     <div class="topline">
-        <div class="brand"><span class="brand-mark">∑</span> NUMERA <span style="color:#687b94;font-weight:500">/ POCKET LAB</span></div>
+        <div class="brand"><span class="brand-mark">∑</span> NUMERA <span style="color:#8c7657;font-weight:500">/ POCKET LAB</span></div>
         <span class="status">ONLINE</span>
     </div>
     <p class="eyebrow">Quick calculation tool · 01</p>
